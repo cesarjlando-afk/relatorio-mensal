@@ -8,8 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Checklist">
 <link rel="manifest" href="manifest.json"> 
-  <link rel="icon" href="assets/imagens/logo.png" type="image/png">
-
+  <link rel="icon" href="icon-192.png">
   <style>
     body { font-family: Arial; padding: 20px; }
     #login, #checklistPage { display: none; }
@@ -53,7 +52,7 @@
         <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
       </div>
       <div class="avaliacao">
-        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+       <button id="btnConforme1" onclick="avaliarItem(this, true)">✅ Conforme</button>
         <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
       </div>
       <div class="descricaoExtra">
@@ -71,8 +70,7 @@
         <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
       </div>
       <div class="avaliacao">
-        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
-        <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+       <button id="btnConforme2" onclick="avaliarItem(this, true)">✅ Conforme</button> <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
       </div>
       <div class="descricaoExtra">
         <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
@@ -89,7 +87,7 @@
         <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
       </div>
       <div class="avaliacao">
-        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button id="btnConforme3" onclick="avaliarItem(this, true)">✅ Conforme</button>
         <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
       </div>
       <div class="descricaoExtra">
@@ -107,7 +105,7 @@
         <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
       </div>
       <div class="avaliacao">
-        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button id="btnConforme4" onclick="avaliarItem(this, true)">✅ Conforme</button>
         <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
       </div>
       <div class="descricaoExtra">
@@ -125,7 +123,7 @@
         <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
       </div>
       <div class="avaliacao">
-        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button id="btnConforme5" onclick="avaliarItem(this, true)">✅ Conforme</button>
         <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
       </div>
       <div class="descricaoExtra">
@@ -143,7 +141,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme6" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -164,7 +162,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme7" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -182,7 +180,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme8" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -200,7 +198,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme9" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -218,7 +216,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme10" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -236,7 +234,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme11"onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -254,7 +252,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme12" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -272,7 +270,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme13"onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -290,7 +288,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme14" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -308,7 +306,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme15" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -326,7 +324,7 @@
     <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
   </div>
   <div class="avaliacao">
-    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button id="btnConforme16" onclick="avaliarItem(this, true)">✅ Conforme</button>
     <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
   </div>
   <div class="descricaoExtra">
@@ -441,21 +439,13 @@ function capturarFotoUnica() {
   item.querySelector('input[type="text"]').style.display = "none";
 
   verificarChecklistCompleto();
-}
 
-function avaliarItem(btn, conforme) {
-  const item = btn.closest('.item');
-  const descricaoInput = item.querySelector('input[type="text"]');
-  if (conforme) {
-    descricaoInput.value = "Conforme";
-    salvarEstado();
-    item.classList.remove('checked');
-    item.querySelector('.avaliacao').style.display = "none";
-    item.querySelector('.controles').style.display = "block";
-    descricaoInput.style.display = "block";
-  } else {
-    item.querySelector('.avaliacao').style.display = "none";
-    item.querySelector('.descricaoExtra').style.display = "block";
+  // 🔄 Rolar até o botão "✅ Conforme"
+  const btnConforme = document.getElementById(`btnConforme${itemAtivo}`);
+  if (btnConforme) {
+    setTimeout(() => {
+      btnConforme.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
   }
 }
 
@@ -547,7 +537,7 @@ function gerarPDF() {
 }
 
 function iniciarRonda() {
-  if (confirm("Tem certeza que deseja iniciar uma nova ronda? Isso apagará os dados anteriores.")) {
+  if (confirm("Tem certeza que deseja iniciar uma nova ronda?.")) {
     localStorage.removeItem(`checklist_${usuarioAtual}`);
     rondaIniciada = true;
 
@@ -604,6 +594,22 @@ function restaurarEstado() {
   verificarChecklistCompleto();
 }
 
+function avaliarItem(btn, conforme) {
+  const item = btn.closest('.item');
+  const descricaoInput = item.querySelector('input[type="text"]');
+
+  if (conforme) {
+    descricaoInput.value = "Conforme";
+    salvarEstado();
+    item.classList.remove('checked');
+    item.querySelector('.avaliacao').style.display = "none";
+    item.querySelector('.controles').style.display = "block";
+    descricaoInput.style.display = "block";
+  } else {
+    item.querySelector('.avaliacao').style.display = "none";
+    item.querySelector('.descricaoExtra').style.display = "block";
+  }
+}
 function atualizarDataHora() {
   const agora = new Date();
   const formatado = agora.toLocaleString('pt-BR', {
