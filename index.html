@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Ronda Preventiva</title>
+<meta name="theme-color" content="#007bff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Checklist">
+<link rel="manifest" href="manifest.json"> 
+  <link rel="icon" href="assets/imagens/logo.png" type="image/png">
+
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #login, #checklistPage { display: none; }
+    #login.visible, #checklistPage.visible { display: block; }
+    .item { margin-bottom: 30px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; }
+    .controles, .avaliacao, .descricaoExtra { display: none; margin-top: 10px; }
+    .item.checked .controles { display: block; }
+    canvas { width: 100%; max-width: 300px; margin-top: 10px; display: none; }
+    input[type="text"], input[type="password"] { width: 100%; padding: 8px; margin-top: 5px; }
+    button { margin-top: 10px; padding: 10px 20px; font-size: 16px; }
+    .hora-captura { margin-top: 5px; font-size: 14px; color: #555; }
+    #dataHoraAtual { font-size: 16px; margin-bottom: 20px; font-weight: bold; }
+    #blocoCamera { margin-top: 20px; display: none; text-align: center; }
+    #videoUnico { max-height: 250px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+<div id="login" class="visible">
+  <h2>Login de Acesso</h2>
+  <label>Usuário:</label><br>
+  <input type="text" id="usuario"><br>
+  <label>Senha:</label><br>
+  <input type="password" id="senha"><br>
+  <button onclick="verificarLogin()">Entrar</button>
+  <div id="erro" style="color: red; margin-top: 10px;"></div>
+</div>
+
+<div id="checklistPage">
+  <h2>Ronda Preventiva Bravos B29</h2>
+  <div id="dataHoraAtual"></div>
+  <button onclick="iniciarRonda()">🚀 Iniciar Ronda</button>
+
+  <div id="checklist">
+    <!-- ✅ Itens 1 a 5 -->
+    <div class="item" data-id="1">
+      <label><input type="checkbox" class="check" onchange="toggleItem(this)"> Casa de Máquinas Zona Alta</label>
+      <div class="controles">
+        <button onclick="abrirCamera(1)">📸 Abrir Câmera</button>
+        <canvas id="canvas1"></canvas>
+        <div class="hora-captura"></div>
+        <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+      </div>
+      <div class="avaliacao">
+        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+      </div>
+      <div class="descricaoExtra">
+        <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+        <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+      </div>
+    </div>
+
+    <div class="item" data-id="2">
+      <label><input type="checkbox" class="check" onchange="toggleItem(this)"> Gerador 2</label>
+      <div class="controles">
+        <button onclick="abrirCamera(2)">📸 Abrir Câmera</button>
+        <canvas id="canvas2"></canvas>
+        <div class="hora-captura"></div>
+        <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+      </div>
+      <div class="avaliacao">
+        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+      </div>
+      <div class="descricaoExtra">
+        <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+        <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+      </div>
+    </div>
+
+    <div class="item" data-id="3">
+      <label><input type="checkbox" class="check" onchange="toggleItem(this)"> CAG 2</label>
+      <div class="controles">
+        <button onclick="abrirCamera(3)">📸 Abrir Câmera</button>
+        <canvas id="canvas3"></canvas>
+        <div class="hora-captura"></div>
+        <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+      </div>
+      <div class="avaliacao">
+        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+      </div>
+      <div class="descricaoExtra">
+        <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+        <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+      </div>
+    </div>
+
+    <div class="item" data-id="4">
+      <label><input type="checkbox" class="check" onchange="toggleItem(this)"> DEA</label>
+      <div class="controles">
+        <button onclick="abrirCamera(4)">📸 Abrir Câmera</button>
+        <canvas id="canvas4"></canvas>
+        <div class="hora-captura"></div>
+        <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+      </div>
+      <div class="avaliacao">
+        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+      </div>
+      <div class="descricaoExtra">
+        <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+        <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+      </div>
+    </div>
+
+    <div class="item" data-id="5">
+      <label><input type="checkbox" class="check" onchange="toggleItem(this)"> Pressurização</label>
+      <div class="controles">
+        <button onclick="abrirCamera(5)">📸 Abrir Câmera</button>
+        <canvas id="canvas5"></canvas>
+        <div class="hora-captura"></div>
+        <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+      </div>
+      <div class="avaliacao">
+        <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+        <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+      </div>
+      <div class="descricaoExtra">
+        <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+        <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+      </div>
+    </div>
+    <!-- Item 6: CAG 1 -->
+<div class="item" data-id="6">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)"> CAG 1</label>
+  <div class="controles">
+    <button onclick="abrirCamera(6)">📸 Abrir Câmera</button>
+    <canvas id="canvas6"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+
+<!-- Repita a estrutura acima para os itens 7 a 17, alterando o nome e o número do ID/canvas -->
+<!-- Aqui estão os nomes para cada item: -->
+<!-- 7: 2° Subsolo -->
+<div class="item" data-id="7">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)"> 2° Subsolo</label>
+  <div class="controles">
+    <button onclick="abrirCamera(7)">📸 Abrir Câmera</button>
+    <canvas id="canvas7"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 8: 3° Subsolo -->
+<div class="item" data-id="8">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">3° Subsolo</label>
+  <div class="controles">
+    <button onclick="abrirCamera(8)">📸 Abrir Câmera</button>
+    <canvas id="canvas8"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 9: Casa de Bomba Água Potável 4°SS -->
+<div class="item" data-id="9">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Casa de Bomba Água Potável 4°SS</label>
+  <div class="controles">
+    <button onclick="abrirCamera(9)">📸 Abrir Câmera</button>
+    <canvas id="canvas9"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 10: Casa de Bomba de Incêndio -->
+<div class="item" data-id="10">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Casa de Bomba de Incêndio</label>
+  <div class="controles">
+    <button onclick="abrirCamera(10)">📸 Abrir Câmera</button>
+    <canvas id="canvas10"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 11: Tanque de Diesel -->
+<div class="item" data-id="11">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Tanque de Diesel</label>
+  <div class="controles">
+    <button onclick="abrirCamera(11)">📸 Abrir Câmera</button>
+    <canvas id="canvas11"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 12: Lençol Freático -->
+<div class="item" data-id="12">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Lençol Freático</label>
+  <div class="controles">
+    <button onclick="abrirCamera(12)">📸 Abrir Câmera</button>
+    <canvas id="canvas12"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 13: CAG 1 -->
+<div class="item" data-id="13">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Heliponto</label>
+  <div class="controles">
+    <button onclick="abrirCamera(13)">📸 Abrir Câmera</button>
+    <canvas id="canvas13"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 14: Gerador 1 -->
+<div class="item" data-id="14">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Gerador 1</label>
+  <div class="controles">
+    <button onclick="abrirCamera(14)">📸 Abrir Câmera</button>
+    <canvas id="canvas14"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 15: Registro de Recalque -->
+<div class="item" data-id="15">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Registro de Recalque</label>
+  <div class="controles">
+    <button onclick="abrirCamera(15)">📸 Abrir Câmera</button>
+    <canvas id="canvas15"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 16: Casa de Maquinas Zona Baixa -->
+<div class="item" data-id="16">
+  <label><input type="checkbox" class="check" onchange="toggleItem(this)">Casa de Maquinas Zona Baixa</label>
+  <div class="controles">
+    <button onclick="abrirCamera(16)">📸 Abrir Câmera</button>
+    <canvas id="canvas16"></canvas>
+    <div class="hora-captura"></div>
+    <input type="text" placeholder="Descrição..." oninput="salvarEstado()">
+  </div>
+  <div class="avaliacao">
+    <button onclick="avaliarItem(this, true)">✅ Conforme</button>
+    <button onclick="avaliarItem(this, false)">❌ Não Conforme</button>
+  </div>
+  <div class="descricaoExtra">
+    <input type="text" class="descricaoExtraInput" placeholder="Descreva o problema..." oninput="validarDescricao(this)">
+    <button disabled onclick="salvarNaoConforme(this)">💾 Salvar</button>
+  </div>
+</div>
+<!-- 17: Painel de Controle de Incêndio -->
+
+<!-- Bloco único de câmera -->
+<div id="blocoCamera">
+  <video id="videoUnico" autoplay playsinline></video><br>
+  <button onclick="capturarFotoUnica()">✅ Capturar Foto</button>
+</div>
+
+<button id="btnPDF" onclick="verificarAntesDeGerar()">📄 Gerar PDF</button>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let streamAtual = null;
+let usuarioAtual = "";
+let rondaIniciada = false;
+let itemAtivo = null;
+
+const usuariosPermitidos = {
+  "Cesar Lando": "25242",
+  "Cristiano Andrade": "12345"
+};
+
+function verificarLogin() {
+  const usuario = document.getElementById("usuario").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+  const erro = document.getElementById("erro");
+
+  if (usuariosPermitidos[usuario] === senha) {
+    usuarioAtual = usuario;
+    document.getElementById("login").classList.remove("visible");
+    document.getElementById("checklistPage").classList.add("visible");
+    restaurarEstado();
+  } else {
+    erro.innerText = "Usuário ou senha inválidos.";
+  }
+}
+
+function toggleItem(checkbox) {
+  const item = checkbox.closest('.item');
+  if (!rondaIniciada) {
+    checkbox.checked = false;
+    alert("⚠️ Inicie a ronda antes de verificar os itens!");
+    return;
+  }
+  if (checkbox.checked) {
+    item.classList.add('checked');
+    item.querySelector('.controles').style.display = "block";
+  } else {
+    item.classList.remove('checked');
+    item.querySelector('.controles').style.display = "none";
+    item.querySelector('.avaliacao').style.display = "none";
+    item.querySelector('.descricaoExtra').style.display = "none";
+    item.querySelector('canvas').style.display = "none";
+    item.removeAttribute("data-foto");
+  }
+  verificarChecklistCompleto();
+  salvarEstado();
+}
+
+function abrirCamera(id) {
+  itemAtivo = id;
+  const video = document.getElementById("videoUnico");
+  const blocoCamera = document.getElementById("blocoCamera");
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
+    .then(stream => {
+      video.srcObject = stream;
+      video.style.display = "block";
+      blocoCamera.style.display = "block";
+      streamAtual = stream;
+      setTimeout(() => {
+        blocoCamera.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    })
+    .catch(err => {
+      alert("Erro ao acessar a câmera: " + err.message);
+    });
+}
+
+function capturarFotoUnica() {
+  if (!itemAtivo) return;
+
+  const video = document.getElementById("videoUnico");
+  const canvas = document.getElementById(`canvas${itemAtivo}`);
+  const ctx = canvas.getContext('2d');
+  canvas.style.display = "block";
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  const hora = new Date().toLocaleString();
+  const item = document.querySelector(`.item[data-id="${itemAtivo}"]`);
+  item.querySelector('.hora-captura').innerText = `Capturado em: ${hora}`;
+  item.setAttribute("data-foto", "true");
+
+  if (streamAtual) {
+    streamAtual.getTracks().forEach(track => track.stop());
+    streamAtual = null;
+    video.style.display = "none";
+    document.getElementById("blocoCamera").style.display = "none";
+  }
+
+  item.querySelector('.controles').style.display = "none";
+  item.querySelector('.avaliacao').style.display = "block";
+  item.querySelector('input[type="text"]').style.display = "none";
+
+  verificarChecklistCompleto();
+}
+
+function avaliarItem(btn, conforme) {
+  const item = btn.closest('.item');
+  const descricaoInput = item.querySelector('input[type="text"]');
+  if (conforme) {
+    descricaoInput.value = "Conforme";
+    salvarEstado();
+    item.classList.remove('checked');
+    item.querySelector('.avaliacao').style.display = "none";
+    item.querySelector('.controles').style.display = "block";
+    descricaoInput.style.display = "block";
+  } else {
+    item.querySelector('.avaliacao').style.display = "none";
+    item.querySelector('.descricaoExtra').style.display = "block";
+  }
+}
+
+function validarDescricao(input) {
+  const btnSalvar = input.nextElementSibling;
+  btnSalvar.disabled = input.value.trim() === "";
+}
+
+function salvarNaoConforme(btn) {
+  const item = btn.closest('.item');
+  const extraInput = item.querySelector('.descricaoExtraInput');
+  const descricaoInput = item.querySelector('input[type="text"]');
+  descricaoInput.value = extraInput.value.trim();
+
+  salvarEstado();
+  item.classList.remove('checked');
+  item.querySelector('.descricaoExtra').style.display = "none";
+  item.querySelector('.controles').style.display = "block";
+  descricaoInput.style.display = "block";
+}
+
+function verificarChecklistCompleto() {
+  const itens = document.querySelectorAll('.item');
+  const todosVerificados = Array.from(itens).every(item => item.querySelector('.check').checked);
+  const todasFotosCapturadas = Array.from(itens).every(item => item.getAttribute("data-foto") === "true");
+
+  const btnPDF = document.getElementById("btnPDF");
+  btnPDF.disabled = !(todosVerificados && todasFotosCapturadas);
+}
+
+function verificarAntesDeGerar() {
+  const btnPDF = document.getElementById("btnPDF");
+  if (btnPDF.disabled) {
+    alert("⚠️ Você precisa verificar todos os itens e capturar as fotos antes de gerar o relatório.");
+    return;
+  }
+  gerarPDF();
+}
+
+function gerarPDF() {
+  const itens = document.querySelectorAll('.item');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 10;
+  doc.setFontSize(14);
+  doc.text(`Checklist Técnico - ${usuarioAtual}`, 10, y);
+  y += 10;
+
+  for (let i = 0; i < itens.length; i++) {
+    const item = itens[i];
+    const titulo = item.querySelector('label').innerText.trim();
+    const descricao = item.querySelector('input[type="text"]').value || "Sem descrição";
+    const hora = item.querySelector('.hora-captura')?.innerText || "Sem hora";
+    const canvas = item.querySelector('canvas');
+
+    doc.setFontSize(12);
+    doc.text(`${i + 1}. ${titulo}`, 10, y); y += 6;
+    doc.text(`Descrição: ${descricao}`, 10, y); y += 6;
+    doc.text(`${hora}`, 10, y); y += 6;
+
+    if (canvas && canvas.width > 0) {
+      const imgData = canvas.toDataURL("image/png");
+
+      if (y + 50 > 270) {
+        doc.addPage();
+        y = 10;
+      }
+
+      doc.addImage(imgData, "PNG", 10, y, 60, 45);
+      y += 50;
+    }
+
+    y += 10;
+    if (y > 270) {
+      doc.addPage();
+      y = 10;
+    }
+  }
+
+  const horaEnvio = new Date().toLocaleString();
+  doc.text(`Enviado em: ${horaEnvio}`, 10, y);
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const nomeArquivo = `Checklist_${usuarioAtual}_${timestamp}.pdf`;
+
+  doc.save(nomeArquivo);
+  alert("✅ PDF gerado com sucesso!");
+}
+
+function iniciarRonda() {
+  if (confirm("Tem certeza que deseja iniciar uma nova ronda? Isso apagará os dados anteriores.")) {
+    localStorage.removeItem(`checklist_${usuarioAtual}`);
+    rondaIniciada = true;
+
+    document.querySelectorAll('.item').forEach(item => {
+      item.classList.remove('checked');
+      item.querySelector('.check').checked = false;
+      item.querySelector('input[type="text"]').value = "";
+      item.querySelector('.hora-captura').innerText = "";
+      item.querySelector('canvas').style.display = "none";
+      item.querySelector('.controles').style.display = "none";
+      item.querySelector('.avaliacao').style.display = "none";
+      item.querySelector('.descricaoExtra').style.display = "none";
+      item.querySelector('input[type="text"]').style.display = "block";
+      item.removeAttribute("data-foto");
+    });
+
+    alert("✅ Ronda iniciada com sucesso!");
+    verificarChecklistCompleto();
+  }
+}
+
+function salvarEstado() {
+  const itens = document.querySelectorAll('.item');
+  const dados = [];
+
+  itens.forEach((item) => {
+    const check = item.querySelector('.check').checked;
+    const descricao = item.querySelector('input[type="text"]').value;
+    const hora = item.querySelector('.hora-captura')?.innerText || "";
+    const foto = item.getAttribute("data-foto") === "true";
+
+    dados.push({ check, descricao, hora, foto });
+  });
+
+  localStorage.setItem(`checklist_${usuarioAtual}`, JSON.stringify(dados));
+}
+
+function restaurarEstado() {
+  const dados = JSON.parse(localStorage.getItem(`checklist_${usuarioAtual}`) || '[]');
+  const itens = document.querySelectorAll('.item');
+
+  dados.forEach((dado, index) => {
+    const item = itens[index];
+    if (!item) return;
+
+    item.querySelector('.check').checked = dado.check;
+    item.querySelector('input[type="text"]').value = dado.descricao;
+    item.querySelector('.hora-captura').innerText = dado.hora || "";
+
+    if (dado.check) item.classList.add('checked');
+    if (dado.foto) item.setAttribute("data-foto", "true");
+  });
+
+  verificarChecklistCompleto();
+}
+
+function atualizarDataHora() {
+  const agora = new Date();
+  const formatado = agora.toLocaleString('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  document.getElementById("dataHoraAtual").innerText = `🕒 ${formatado}`;
+}
+
+setInterval(atualizarDataHora, 1000);
+</script>
+</body>
+</html>
