@@ -672,7 +672,7 @@ function gerarPDF() {
 
   // 🔷 Título do checklist
   doc.setFontSize(14);
-  const titulo3 = `Checklist Técnico - ${usuarioAtual}`;
+  const titulo3 = `Vistoria realizada por :  ${usuarioAtual}`;
   const textWidth3 = doc.getTextWidth(titulo3);
   doc.text(titulo3, (pageWidth - textWidth3) / 2, y);
   y += 10;
