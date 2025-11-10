@@ -568,11 +568,16 @@ function capturarFotoUnica() {
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+  // 🔹 Salva a imagem capturada no localStorage
+  const imgData = canvas.toDataURL("image/jpeg", 0.8);
+  localStorage.setItem(`foto_${itemAtivo}`, imgData);
+
   const hora = new Date().toLocaleString();
   const item = document.querySelector(`.item[data-id="${itemAtivo}"]`);
   item.querySelector('.hora-captura').innerText = `Capturado em: ${hora}`;
   item.setAttribute("data-foto", "true");
 
+  // 🔹 Fecha a câmera e esconde o vídeo
   if (streamAtual) {
     streamAtual.getTracks().forEach(track => track.stop());
     streamAtual = null;
@@ -580,20 +585,18 @@ function capturarFotoUnica() {
     document.getElementById("blocoCamera").style.display = "none";
   }
 
+  // 🔹 Rola a tela de volta para o item correspondente
+  item.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  // 🔹 Ajusta visibilidade dos botões e campos
   item.querySelector('.controles').style.display = "none";
   item.querySelector('.avaliacao').style.display = "block";
   item.querySelector('input[type="text"]').style.display = "none";
 
   verificarChecklistCompleto();
-
-  // 🔄 Rolar até o botão "✅ Conforme"
-  const btnConforme = document.getElementById(`btnConforme${itemAtivo}`);
-  if (btnConforme) {
-    setTimeout(() => {
-      btnConforme.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 300);
-  }
 }
+
+
 
 function validarDescricao(input) {
   const btnSalvar = input.nextElementSibling;
@@ -712,10 +715,18 @@ function gerarPDF() {
     }
   });
 
+  // 🔹 Nome único do PDF
   const nomeArquivo = `Ronda_${usuarioAtual}_${new Date().toLocaleDateString()}_${new Date().getTime()}.pdf`;
   doc.save(nomeArquivo);
 
+  // 🔹 Mensagem de sucesso
   alert(`✅ PDF salvo com sucesso como "${nomeArquivo}"!`);
+
+  // 🔹 Limpa fotos salvas no localStorage após gerar o PDF
+  document.querySelectorAll('.item').forEach(item => {
+    const id = item.getAttribute("data-id");
+    localStorage.removeItem(`foto_${id}`);
+  });
 }
 
 
@@ -839,6 +850,27 @@ verificarLimpezaPeriodica();
       .then(() => console.log("✅ Service Worker registrado com sucesso!"))
       .catch(err => console.log("❌ Erro ao registrar Service Worker:", err));
   }
+
+window.addEventListener("load", () => {
+  document.querySelectorAll('.item').forEach((item) => {
+    const id = item.getAttribute("data-id");
+    const canvas = document.getElementById(`canvas${id}`);
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    const savedImage = localStorage.getItem(`foto_${id}`);
+
+    if (savedImage) {
+      const img = new Image();
+      img.onload = () => {
+        canvas.style.display = "block";
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        item.setAttribute("data-foto", "true");
+      };
+      img.src = savedImage;
+    }
+  });
+});
 
 </script>
 </body>
