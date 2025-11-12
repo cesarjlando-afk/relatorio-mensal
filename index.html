@@ -494,6 +494,10 @@ let streamAtual = null;
 let usuarioAtual = "";
 let rondaIniciada = false;
 let itemAtivo = null;
+if (localStorage.getItem("rondaIniciada") === "true") {
+  rondaIniciada = true;
+}
+
 
 const usuariosPermitidos = {
   "Cesar Lando": "25242",
@@ -738,6 +742,8 @@ function iniciarRonda() {
   if (confirm("Tem certeza que deseja iniciar uma nova ronda?.")) {
     localStorage.removeItem(`checklist_${usuarioAtual}`);
     rondaIniciada = true;
+    localStorage.setItem("rondaIniciada", "true");
+
 
     document.querySelectorAll('.item').forEach(item => {
       item.classList.remove('checked');
