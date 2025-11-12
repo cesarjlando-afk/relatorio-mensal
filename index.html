@@ -824,29 +824,6 @@ function atualizarDataHora() {
 
 setInterval(atualizarDataHora, 1000);
 
-function verificarLimpezaPeriodica() {
-  const chaveTempo = "ultimaLimpeza";
-  const agora = Date.now();
-  const ultimaLimpeza = parseInt(localStorage.getItem(chaveTempo), 10);
-
-  const dozeHoras = 12 * 60 * 60 * 1000; // 12 horas em milissegundos
-
-  if (!ultimaLimpeza || agora - ultimaLimpeza >= dozeHoras) {
-    console.log("🧹 Limpando dados salvos após 12 horas...");
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith("checklist_")) {
-        localStorage.removeItem(key);
-      }
-    });
-    localStorage.setItem(chaveTempo, agora.toString());
-  } else {
-    const restante = ((dozeHoras - (agora - ultimaLimpeza)) / 3600000).toFixed(1);
-    console.log(`⏳ Próxima limpeza em aproximadamente ${restante} horas`);
-  }
-}
-
-// ✅ Chame essa função ao iniciar o app
-verificarLimpezaPeriodica();
 
 
   if ("serviceWorker" in navigator) {
