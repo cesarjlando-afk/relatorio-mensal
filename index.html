@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório Mensal</title>
+<link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" type="image/png">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    background: #f5f5f5;
+  }
+
+  header {
+    background: #004aad;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border-radius: 0 0 10px 10px;
+  }
+
+  header strong {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: auto;
+    padding: 15px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 10px;
+  }
+
+  .categoria {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  }
+
+  .botoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 5px;
+    justify-content: center;
+  }
+
+  button {
+    background: #004aad;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button:hover { background: #003a82; }
+
+  .camera-container {
+    display: none;
+    text-align: center;
+    margin-top: 5px;
+  }
+
+  .camera-container video {
+    width: 250px;
+    height: 180px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+  }
+
+  .camera-container .capture-btn {
+    margin-top: 5px;
+  }
+
+  .fotos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .foto-item {
+    width: 32%;
+    text-align: center;
+  }
+
+  .foto-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .descricao {
+    width: 100%;
+    margin-top: 5px;
+  }
+
+  textarea {
+    width: 100%;
+    resize: none;
+    height: 50px;
+  }
+
+  .topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px;
+  }
+
+  .login input {
+    margin: 5px;
+    padding: 10px;
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  .sair-final {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .sair-final button {
+    background: #dc3545;
+  }
+
+  .sair-final button:hover {
+    background: #b02a37;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <strong>Birmann 29 (Antonio Alves F. Guedes) - B29</strong>
+  Brig. Faria Lima, 3729 - Itaim Bibi, São Paulo - SP
+</header>
+
+<div id="loginPage" class="login">
+  <h2>Login</h2>
+  <input id="usuario" placeholder="Usuário">
+  <input id="senha" placeholder="Senha" type="password">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="topo">
+    <button onclick="iniciarRelatorio()">📝 Iniciar Relatório</button>
+    <h1>Relatório Mensal</h1>
+    <button onclick="gerarPDF()">📄 Gerar PDF</button>
+  </div>
+  <div class="container" id="categorias"></div>
+
+  <div class="sair-final">
+    <button onclick="sair()">🚪 Sair</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const categorias = [
+  "Acompanhamentos Preventivos",
+  "Rondas e Vistorias Técnicas",
+  "Check-list",
+  "Pendências",
+  "Atendimento Primeiros Socorros",
+  "Informações"
+];
+
+let usuarioAtual = "";
+let streamAtual = null;
+let categoriaAtiva = null;
+
+function login() {
+  const user = document.getElementById("usuario").value.trim();
+  const pass = document.getElementById("senha").value.trim();
+  if (user === "Cesar Lando" && pass === "25242") {
+    usuarioAtual = user;
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    carregarCategorias();
+  } else {
+    alert("Usuário ou senha incorretos!");
+  }
+}
+
+function carregarCategorias() {
+  const container = document.getElementById("categorias");
+  container.innerHTML = "";
+  categorias.forEach(nome => {
+    const div = document.createElement("div");
+    div.className = "categoria";
+
+    // Se for "Informações", apenas textarea
+    if (nome === "Informações") {
+      div.innerHTML = `
+        <h3 style="text-align:center;">${nome}</h3>
+        <div class="descricao">
+          <textarea id="desc_${nome}" placeholder="Descreva as informações..."></textarea>
+          <button onclick="salvarDescricao('${nome}')">💾 Salvar</button>
+        </div>
+      `;
+    } else {
+      div.innerHTML = `
+        <h3 style="text-align:center;">${nome}</h3>
+        <div class="botoes">
+          <button onclick="abrirCamera('${nome}')">📷 Abrir Câmera</button>
+          <button onclick="abrirGaleria('${nome}')">🖼️ Abrir Galeria</button>
+        </div>
+        <div class="camera-container" id="camera_${nome}">
+          <video autoplay playsinline></video>
+          <button class="capture-btn" onclick="capturarFoto('${nome}')">📸 Capturar Imagem</button>
+        </div>
+        <div class="descricao">
+          <textarea id="desc_${nome}" placeholder="Descrição..."></textarea>
+          <button onclick="salvarDescricao('${nome}')">💾 Salvar</button>
+        </div>
+        <div class="fotos" id="fotos_${nome}"></div>
+      `;
+    }
+    container.appendChild(div);
+  });
+  restaurarFotos();
+}
+
+
+function abrirCamera(cat) {
+  categoriaAtiva = cat;
+  const container = document.getElementById(`camera_${cat}`);
+  const video = container.querySelector("video");
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } })
+    .then(stream => {
+      streamAtual = stream;              // guarda o stream globalmente
+      video.srcObject = stream;          // aplica o stream no vídeo correto
+      video.play();                      // garante que o vídeo comece a tocar
+      container.style.display = "block";
+      container.scrollIntoView({ behavior: "smooth" });
+    })
+    .catch(err => {
+      alert("Erro ao acessar a câmera: " + err);
+    });
+}
+
+
+function capturarFoto(cat) {
+  if (!streamAtual) { alert("Abra a câmera primeiro!"); return; }
+  const container = document.getElementById(`camera_${cat}`);
+  const video = container.querySelector("video");
+
+  // ajusta o canvas com a resolução do vídeo
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth || 640; // fallback caso videoWidth não esteja pronto
+  canvas.height = video.videoHeight || 480;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  const hora = new Date().toLocaleString();
+  const fotoObj = { img: dataUrl, desc: "", hora };
+
+  const fotos = JSON.parse(localStorage.getItem(`fotos_${cat}`) || "[]");
+  fotos.push(fotoObj);
+  localStorage.setItem(`fotos_${cat}`, JSON.stringify(fotos));
+
+  renderizarFotos(cat);
+
+  // para o vídeo e esconde o container
+  container.style.display = "none";
+  streamAtual.getTracks().forEach(track => track.stop());
+  streamAtual = null;
+}
+
+
+function abrirGaleria(cat) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const hora = new Date().toLocaleString();
+      const fotoObj = { img: ev.target.result, desc: "", hora };
+      const fotos = JSON.parse(localStorage.getItem(`fotos_${cat}`) || "[]");
+      fotos.push(fotoObj);
+      localStorage.setItem(`fotos_${cat}`, JSON.stringify(fotos));
+      renderizarFotos(cat);
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function salvarDescricao(cat) {
+  const desc = document.getElementById(`desc_${cat}`).value.trim();
+  if (!desc) return alert("⚠️ Adicione uma descrição antes de salvar!");
+  const fotos = JSON.parse(localStorage.getItem(`fotos_${cat}`) || "[]");
+  if (fotos.length === 0) return alert("⚠️ Nenhuma foto capturada!");
+  fotos[fotos.length - 1].desc = desc;
+  localStorage.setItem(`fotos_${cat}`, JSON.stringify(fotos));
+  document.getElementById(`desc_${cat}`).value = "";
+  renderizarFotos(cat);
+}
+
+function renderizarFotos(cat) {
+  const fotosDiv = document.getElementById(`fotos_${cat}`);
+  fotosDiv.innerHTML = "";
+  const fotos = JSON.parse(localStorage.getItem(`fotos_${cat}`) || "[]");
+  fotos.forEach(f => {
+    const div = document.createElement("div");
+    div.className = "foto-item";
+    div.innerHTML = `
+      <img src="${f.img}">
+      <p>${f.hora}</p>
+      <small>${f.desc}</small>
+    `;
+    fotosDiv.appendChild(div);
+  });
+}
+
+function restaurarFotos() {
+  categorias.forEach(cat => renderizarFotos(cat));
+}
+
+function iniciarRelatorio() {
+  if (confirm("Iniciar novo relatório? Isso apagará os dados anteriores.")) {
+    categorias.forEach(cat => localStorage.removeItem(`fotos_${cat}`));
+    localStorage.setItem("inicioRelatorio", new Date().toLocaleString());
+    carregarCategorias();
+    alert("✅ Novo relatório iniciado!");
+  }
+}
+
+function sair() {
+  document.getElementById("app").style.display = "none";
+  document.getElementById("loginPage").style.display = "flex";
+}
+
+function gerarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  // Cabeçalho centralizado
+  doc.setFontSize(14);
+  doc.text("Relatório Mensal", doc.internal.pageSize.getWidth() / 2, 10, { align: "center" });
+  doc.setFontSize(10);
+  doc.text("Birmann 29 (Antonio Alves F. Guedes) - B29", doc.internal.pageSize.getWidth() / 2, 16, { align: "center" });
+  doc.text("Brig. Faria Lima, 3729 - Itaim Bibi, São Paulo - SP", doc.internal.pageSize.getWidth() / 2, 21, { align: "center" });
+  doc.text(`Responsável: ${usuarioAtual}`, doc.internal.pageSize.getWidth() / 2, 27, { align: "center" });
+
+  let y = 35;
+  categorias.forEach(cat => {
+    if (cat === "Informações") return; // pulamos por enquanto, será no final
+
+    const fotos = JSON.parse(localStorage.getItem(`fotos_${cat}`) || "[]");
+    if (fotos.length > 0) {
+      doc.setFontSize(12);
+      doc.text(cat, doc.internal.pageSize.getWidth() / 2, y, { align: "center" });
+      y += 6;
+      fotos.forEach((f, i) => {
+        if (i % 3 === 0 && y > 240) { doc.addPage(); y = 20; }
+        const x = 15 + (i % 3) * 60;
+        doc.addImage(f.img, "JPEG", x, y, 55, 45);
+        if ((i + 1) % 3 === 0) y += 50;
+        doc.setFontSize(8);
+        doc.text(`${f.hora}`, x, y + 52);
+        doc.text(f.desc || "", x, y + 57);
+      });
+      y += 65;
+    }
+  });
+
+  // Adicionamos "Informações" como conclusão centralizada
+  const info = document.getElementById("desc_Informações")?.value.trim() || "";
+  if (info) {
+    if (y > 250) { doc.addPage(); y = 20; }
+
+    // título centralizado
+    doc.setFontSize(12);
+    doc.text("Conclusão / Informações:", doc.internal.pageSize.getWidth() / 2, y, { align: "center" });
+    y += 8;
+
+    // texto da conclusão centralizado
+    doc.setFontSize(10);
+    const splitText = doc.splitTextToSize(info, 180);
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    splitText.forEach((line, index) => {
+      doc.text(line, pageWidth / 2, y + index * 6, { align: "center" });
+    });
+
+    y += splitText.length * 6;
+  }
+
+  // Início e término do relatório
+  if (y > 260) { doc.addPage(); y = 20; }
+  const inicio = localStorage.getItem("inicioRelatorio") || "Não registrado";
+  const termino = new Date().toLocaleString();
+  doc.setFontSize(10);
+  doc.text(`Início do relatório: ${inicio}`, 10, y);
+  doc.text(`Término do relatório: ${termino}`, 10, y + 6);
+
+  const nome = `Relatorio_${new Date().toLocaleDateString()}_${new Date().getTime()}.pdf`;
+  doc.save(nome);
+  alert("✅ PDF gerado e salvo com sucesso!");
+
+  // limpa tudo
+  categorias.forEach(cat => localStorage.removeItem(`fotos_${cat}`));
+  document.getElementById("desc_Informações").value = "";
+  carregarCategorias();
+}
+
+
+</script>
+</body>
+</html>
