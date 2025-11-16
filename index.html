@@ -493,6 +493,9 @@ let streamAtual = null;
 let usuarioAtual = "";
 let rondaIniciada = false;
 let itemAtivo = null;
+let horaInicio = null;
+let horaTermino = null;
+
 if (localStorage.getItem("rondaIniciada") === "true") {
   rondaIniciada = true;
 }
@@ -653,18 +656,20 @@ function verificarAntesDeGerar() {
 
   itens.forEach((item) => {
     const checkbox = item.querySelector('.check');
-    const descricao = item.querySelector('.controles input[type="text"]');
+    const descricao = item.querySelector('input[type="text"]');
     const canvas = item.querySelector('canvas');
 
     const marcado = checkbox?.checked;
     const texto = descricao?.value.trim();
     const temFoto = canvas && canvas.width > 0;
 
+    // Se estiver faltando qualquer coisa, marca como inválido
     if (!marcado || !texto || !temFoto) {
       todosValidos = false;
+
       item.style.border = "2px solid red";
 
-      // Remove o border vermelho após 8 segundos
+      // Remove destaque após 8 segundos
       setTimeout(() => {
         item.style.border = "1px solid #ccc";
       }, 8000);
@@ -674,14 +679,16 @@ function verificarAntesDeGerar() {
     }
   });
 
+  // Se houver item faltando, não deixa gerar
   if (!todosValidos) {
-    alert("⚠️ Para gerar o PDF, todos os itens precisam estar verificados, com descrição e foto.");
+    alert("⚠️ Para gerar o PDF, todos os itens precisam estar marcados, com descrição e foto.");
     return;
   }
 
-  // Se passou na validação, chama a função para gerar o PDF
+  // Tudo ok → gerar PDF
   gerarPDF();
 }
+
 
 
 function gerarPDF() {
@@ -690,10 +697,10 @@ function gerarPDF() {
 
   // 🔹 CABEÇÁRIO CENTRALIZADO NO PDF
   doc.setFontSize(18);
-  doc.text("Hotel Unique", 105, 15, { align: "center" });
+  doc.text("Birmann 29 (Antonio Alves F. Guedes) - B29", 105, 15, { align: "center" });
 
   doc.setFontSize(12);
-  doc.text("AV. Brigadeiro Luis Antonio, 4700 - Jardim Paulista, São Paulo - SP",
+  doc.text("Brig. Faria Lima, 3729 - Itaim Bibi, São Paulo - SP",
            105, 22, { align: "center" });
 
   doc.line(10, 28, 200, 28); // linha separadora
@@ -728,13 +735,10 @@ function gerarPDF() {
     doc.text(`Descrição: ${descricao}`, 10, y);
     y += 8;
 
-    // 🔹 INSERIR IMAGEM SEM CORTAR, AJUSTE AUTOMÁTICO
+    // 🔹 INSERIR IMAGEM AJUSTADA
     if (canvas && canvas.width > 0) {
       const imgData = canvas.toDataURL("image/jpeg", 0.85);
-
-      // Tamanho máximo permitido
-      const maxW = 90;
-      const maxH = 65;
+      const maxW = 90, maxH = 65;
 
       const ratio = canvas.width / canvas.height;
       let w = maxW;
@@ -745,7 +749,6 @@ function gerarPDF() {
         w = h * ratio;
       }
 
-      // Se faltar espaço na página
       if (y + h > 280) {
         doc.addPage();
         y = 20;
@@ -761,6 +764,18 @@ function gerarPDF() {
     }
   });
 
+  // 🔥 RODAPÉ: HORA DE INÍCIO E TÉRMINO DA RONDA
+  const hInicio = horaInicio || localStorage.getItem("horaInicio") || "Não informado";
+  const hTermino = horaTermino || localStorage.getItem("horaTermino") || "Não informado";
+
+  doc.setFontSize(10);
+  doc.text(
+    `Ronda iniciada: ${hInicio}  |  Ronda finalizada: ${hTermino}`,
+    10,
+    290
+  );
+
+  // 🔹 SALVAR PDF
   const nomeArquivo = `Ronda_${usuarioAtual}_${new Date().toLocaleDateString()}_${new Date().getTime()}.pdf`;
   doc.save(nomeArquivo);
 
@@ -768,12 +783,17 @@ function gerarPDF() {
 }
 
 
+
 function iniciarRonda() {
   if (confirm("Tem certeza que deseja iniciar uma nova ronda?.")) {
+    
+    // 🔥 SALVA A HORA DE INÍCIO DA RONDA
+    horaInicio = new Date().toLocaleString();
+    localStorage.setItem("horaInicio", horaInicio);
+
     localStorage.removeItem(`checklist_${usuarioAtual}`);
     rondaIniciada = true;
     localStorage.setItem("rondaIniciada", "true");
-
 
     document.querySelectorAll('.item').forEach(item => {
       item.classList.remove('checked');
@@ -792,6 +812,7 @@ function iniciarRonda() {
     verificarChecklistCompleto();
   }
 }
+
 
 function salvarEstado() {
   const itens = document.querySelectorAll('.item');
