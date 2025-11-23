@@ -810,11 +810,12 @@ function gerarPDF() {
     { align: "center" }
   );
 
-  // 🔹 SALVAR
+  // 🔹 SALVAR PDF e exibir alert
   const nomeArquivo =
     `Ronda_${usuarioAtual}_${new Date().toLocaleDateString()}_${Date.now()}.pdf`;
 
   doc.save(nomeArquivo);
+  alert("✅ PDF gerado com sucesso!"); // <-- Aqui está a correção
 }
 
 
