@@ -204,7 +204,10 @@ if ('serviceWorker' in navigator) {
 function login() {
   const user = document.getElementById("usuario").value.trim();
   const pass = document.getElementById("senha").value.trim();
-  if (user === "Cesar Lando" && pass === "25242") {
+
+  if ((user === "Cesar Lando" && pass === "25242") ||
+      (user === "Bombeiros Birmann29" && pass === "BombeirosB29")) {
+    
     usuarioAtual = user;
     document.getElementById("loginPage").style.display = "none";
     document.getElementById("app").style.display = "block";
@@ -409,6 +412,7 @@ function gerarPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("p", "mm", "a4");
 
+  // Cabeçalho
   doc.setFontSize(14);
   doc.text("Relatório Mensal", doc.internal.pageSize.getWidth() / 2, 10, { align: "center" });
   doc.setFontSize(10);
@@ -424,27 +428,55 @@ function gerarPDF() {
       doc.setFontSize(12);
       doc.text(cat, doc.internal.pageSize.getWidth() / 2, y, { align: "center" });
       y += 6;
+
+      let linhaAltura = 0; // controla altura máxima da linha
+
       fotos.forEach((f, i) => {
         if (i % 4 === 0 && y > 240) {
           doc.addPage();
           y = 20;
         }
+
         const x = 10 + (i % 4) * 45;
         const fotoY = y;
-        doc.addImage(f.img, "JPEG", x, fotoY, 35, 28); // foto menor
-        doc.setFontSize(8);
-        doc.text(`${f.hora}`, x, fotoY + 29); // abaixo da foto
+
+        // Imagem opcional apenas em Atendimento Primeiros Socorros
+        const mostrarImagem = cat !== "Atendimento Primeiros Socorros" || (cat === "Atendimento Primeiros Socorros" && f.img);
+
+        if (mostrarImagem && f.img) {
+          doc.addImage(f.img, "JPEG", x, fotoY, 35, 28);
+          doc.setFontSize(8);
+          doc.text(`${f.hora}`, x, fotoY + 31); // hora com espaçamento seguro
+        }
+
+        // Descrição sempre obrigatória
         const splitDesc = doc.splitTextToSize(f.desc || "", 35);
+        let descY = (mostrarImagem && f.img) ? fotoY + 36 : fotoY;
         splitDesc.forEach((line, idx) => {
-          doc.text(line, x, fotoY + 34 + (idx * 4));
+          doc.text(line, x, descY + (idx * 4));
         });
-        if ((i + 1) % 4 === 0) y += 40; // próxima linha
+
+        // Calcula altura ocupada pelo bloco
+        const alturaBloco = (mostrarImagem && f.img ? 36 : 0) + (splitDesc.length * 4);
+        if (alturaBloco > linhaAltura) {
+          linhaAltura = alturaBloco;
+        }
+
+        // Quando completar 4 fotos, avança Y pela maior altura da linha
+        if ((i + 1) % 4 === 0) {
+          y += Math.max(40, linhaAltura);
+          linhaAltura = 0;
+        }
       });
-      if (fotos.length % 4 !== 0) y += 40;
+
+      // Se sobrar fotos na última linha, avança também
+      if (fotos.length % 4 !== 0) {
+        y += Math.max(40, linhaAltura);
+      }
     }
   });
 
-  // Adiciona "Informações" como conclusão centralizada
+  // Conclusão / Informações
   const info = document.getElementById("desc_Informações")?.value.trim() || "";
   if (info) {
     if (y > 250) { doc.addPage(); y = 20; }
@@ -457,9 +489,10 @@ function gerarPDF() {
     splitText.forEach((line, index) => {
       doc.text(line, pageWidth / 2, y + index * 6, { align: "center" });
     });
-    y += splitText.length * 6;
+    y += splitText.length * 6 + 6; // margem extra no final
   }
 
+  // Rodapé
   if (y > 260) { doc.addPage(); y = 20; }
   const inicio = localStorage.getItem("inicioRelatorio") || "Não registrado";
   const termino = new Date().toLocaleString();
@@ -467,10 +500,12 @@ function gerarPDF() {
   doc.text(`Início do relatório: ${inicio}`, 10, y);
   doc.text(`Término do relatório: ${termino}`, 10, y + 6);
 
+  // Salvar
   const nome = `Relatorio_${new Date().toLocaleDateString()}_${new Date().getTime()}.pdf`;
   doc.save(nome);
   alert("✅ PDF gerado e salvo com sucesso!");
 
+  // Limpeza
   categorias.forEach(cat => localStorage.removeItem(`fotos_${cat}`));
   localStorage.removeItem("inicioRelatorio");
   document.getElementById("desc_Informações").value = "";
