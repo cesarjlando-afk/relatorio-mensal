@@ -1,54 +1,32 @@
-// service-worker.js — versão otimizada (funciona offline + PDF online)
-const CACHE_NAME = "ronda-cache-v2";
-const FILES_TO_CACHE = [
-  "index.html",
-  "manifest.json",
-  "icon-192.png",
-  "icon-512.png",
-  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+const CACHE_NAME = 'ronda-cache-v1';
+const urlsToCache = [
+  '/', 
+  '/index.html',
+  '/style.css',
+  '/manifest.json',
+  '/icon-192.png',
+  // Remover '/service-worker.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
-// Instala e faz cache dos arquivos essenciais
-self.addEventListener("install", event => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(FILES_TO_CACHE))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
 });
 
-// Ativa e remove caches antigos
-self.addEventListener("activate", event => {
+self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.map(key => {
-        if (key !== CACHE_NAME) {
-          return caches.delete(key);
-        }
-      }))
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
   );
-  self.clients.claim();
 });
 
-// Estratégia híbrida: usa cache offline, mas tenta buscar online primeiro
-self.addEventListener("fetch", event => {
-  const request = event.request;
-
-  // Ignora requisições do jsPDF (para funcionar o PDF online)
-  if (request.url.includes("jspdf")) {
-    return;
-  }
-
-  // Para o restante, tenta a rede primeiro, depois cache
+self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(request)
-      .then(response => {
-        // Se obtiver resposta da rede, atualiza o cache
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-        return response;
-      })
-      .catch(() => caches.match(request))
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });
