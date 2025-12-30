@@ -182,12 +182,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('Service Worker registrado com sucesso:', reg))
-      .catch(err => console.error('Falha ao registrar Service Worker:', err));
-  }
   
 const categorias = [
   "Acompanhamentos Preventivos",
@@ -623,6 +617,20 @@ function atualizarDataHora(cat, idx, valor) {
   const fotos = JSON.parse(localStorage.getItem(`fotos_${cat}`) || "[]");
   fotos[idx].dataHoraCustom = valor;
   localStorage.setItem(`fotos_${cat}`, JSON.stringify(fotos));
+}
+</script>
+<script>
+// Registro do Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(registration => {
+        console.log('Service Worker registrado com sucesso:', registration);
+      })
+      .catch(error => {
+        console.log('Falha no registro do Service Worker:', error);
+      });
+  });
 }
 </script>
 </body>
