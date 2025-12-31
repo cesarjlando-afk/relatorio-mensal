@@ -1,4 +1,4 @@
-const CACHE_NAME = 'relatorio-v1';
+const CACHE_NAME = 'sou-brigadista-v1';
 const urlsToCache = [
   './', // Página principal
   './index.html' // Seu arquivo HTML
